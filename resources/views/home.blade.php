@@ -13,8 +13,10 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    <a href="{{ route('Notification') }}"><img src="notification.png" alt="NotificationIcon"/></a>
-                    <a href="{{ route('Event') }}"><img src="event.png" alt="EventIcon"/></a>
+                    <a href="{{ route('Notification') }}"><img src="notification.png" height=150 width=150 alt="NotificationIcon"/></a>
+                    <a href="{{ route('Event') }}"><img src="event.png" height=150 width=150 alt="EventIcon"/></a>
+                    <a href="{{ route('Backup') }}"><img src="backup.jpg" height=100 width=100 alt="BackupIcon"/></a>
+                    <a href="{{ route('BulkArchiveOrDelete') }}"><img src="archiveordelete.png" height=150 width=200 alt="BackupIcon"/></a>
                 </div>
             </div>
         </div>

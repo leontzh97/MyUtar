@@ -21,6 +21,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/Notification', 'NotificationController@index')->name('Notification');
 Route::get('/Event', 'EventController@index')->name('Event');
+Route::get('/Backup', 'BackupController@index')->name('Backup');
+Route::get('/BulkArchiveOrDelete', 'BulkArchiveOrDeleteController@index')->name('BulkArchiveOrDelete');
 
 Route::prefix('superadmin')->group(function() {
   Route::get('/login', 'Auth\SuperAdminLoginController@showLoginForm')->name('superadmin.login');
