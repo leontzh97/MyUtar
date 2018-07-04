@@ -20,18 +20,18 @@ class SuperAdminLoginController extends Controller
     {
       //Validate the Form Data
       $this->validate($request, [
-        'email' => 'required|email',
+        'id',
         'password' => 'required|min:6'
       ]);
 
       //Attempt to Log the User in
-      if(Auth::guard('super_admin')->attempt(['email' => $request->email,
+      if(Auth::guard('super_admin')->attempt(['id' => $request->id,
       'password'=> $request->password], $request->remember)){
         //If Successful, then redirect to their intended location
         return redirect()->intended(route('superadmin.dashboard'));
       }
 
       //If Unsuccessful, then redirect back to the login with the form data
-      return redirect()->back()->withInput($request->only('email','remember'));
+      return redirect()->back()->withInput($request->only('id','remember'));
     }
 }

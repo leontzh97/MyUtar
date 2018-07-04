@@ -25,6 +25,10 @@ class LoginController extends Controller
      *
      * @var string
      */
+     public function id()
+     {
+    return 'id';
+  }
     protected $redirectTo = '/home';
 
     /**
