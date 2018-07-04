@@ -1,2 +1,0 @@
-# MyUtar
-Rebuild with Laravel
