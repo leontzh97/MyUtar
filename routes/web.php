@@ -19,6 +19,9 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/Notification', 'NotificationController@index')->name('Notification');
+Route::get('/Event', 'EventController@index')->name('Event');
+
 Route::prefix('superadmin')->group(function() {
   Route::get('/login', 'Auth\SuperAdminLoginController@showLoginForm')->name('superadmin.login');
   Route::post('/login', 'Auth\SuperAdminLoginController@login')->name('superadmin.login.submit');

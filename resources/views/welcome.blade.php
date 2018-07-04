@@ -75,11 +75,15 @@
                     @endauth
                 </div>
             @endif
-            <div class="content">
-                <div class="title m-b-md">
-                
-                    MyUtar
 
+
+            <div class="content">
+              <div class = "m-b-md">
+                <img src="defaultUTAR.jpg" width=300 height=300 alt="UtarLogo"/>
+              </div>
+
+                <div class="title m-b-md">
+                    MyUtar
                 </div>
             </div>
         </div>
