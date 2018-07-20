@@ -1,0 +1,68 @@
+{
+  "events":[
+     {
+       "image": "http://www.utar.edu.my/media/EVENTS/CEE133529.jpg",
+       "date": "06/01/2018",
+       "type":"Talk",
+       "department": "DIECS",
+       "title": "Grammar Express: Common English Tenses",
+       "time": "9.00am - 5.00pm",
+       "venue": "UTAR, Sungai Long Campus",
+       "fee": "RM150.00 per participant (6% GST Inclusive)",
+       "link": "https://goo.gl/9KgjqR",
+       "id": "1"
+     },
+     {
+       "image": "http://www.utar.edu.my/media/EVENTS/CEE133517.jpg",
+       "date": "06/07/2018",
+       "type":"Career",
+       "department": "DMAS",
+       "title": "Workplace Safety and Health",
+       "time": "9.00am - 5.00pm",
+       "venue": "UTAR, Sungai Long Campus",
+       "fee": "RM150.00 per participant (6% GST Inclusive)",
+       "link": "https://goo.gl/9KgjqR",
+       "id": "2"
+     },
+     {
+       "image": "http://www.utar.edu.my/media/EVENTS/CEE135062.jpg",
+       "date": "07/11/2017",
+       "type":"Talk",
+       "department": "DIECS",
+       "title": "How to Kick Start M-Commerce using Smart Phone",
+       "time": "9.00am - 5.00pm",
+       "venue": "UTAR, Sungai Long Campus",
+       "fee": "RM150.00 per participant (6% GST Inclusive)",
+       "link": "https://goo.gl/9KgjqR",
+       "id": "3"
+     },
+     {
+       "image": "http://www.utar.edu.my/media/EVENTS/DARP135018.jpg",
+       "date": "07/21/2019",
+       "type":"Talk",
+       "department": "LKCFES",
+       "title": "Your Memory is Better Than You Think",
+       "time": "9.00am - 5.00pm",
+       "venue": "UTAR, Sungai Long Campus",
+       "fee": "RM150.00 per participant (6% GST Inclusive)",
+       "link": "https://goo.gl/9KgjqR",
+       "id": "4"
+      }
+   ],
+   "departmentID":[
+       "DIECS",
+     "LKCFES",
+     "DMAS",
+     "DASD",
+     "DCI",
+     "DCL",
+     "DME",
+     "DMH",
+     "D3E"
+   ],
+   "type": [
+     "Talk",
+     "Career",
+     "Game"
+   ]
+}
