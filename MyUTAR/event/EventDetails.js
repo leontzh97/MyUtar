@@ -33,7 +33,6 @@ export default class EventDetails extends Component<Props> {
     let title = this.props.navigation.getParam('dataTitle');
     let venue = this.props.navigation.getParam('dataVenue');
     let fee = this.props.navigation.getParam('dataFee');
-    let link = this.props.navigation.getParam('dataLink');
     let image = this.props.navigation.getParam('dataImage');
     let date = new Date(`${this.props.navigation.getParam('dataDate')}`);
     let time = this.props.navigation.getParam('dataTime');
@@ -49,7 +48,6 @@ export default class EventDetails extends Component<Props> {
           Time: {time}{'\n'}
           Venue: {venue}{'\n'}
           Admission Fee: {fee}{'\n'}
-          Register at: {link}{'\n'}
         </Text>
         <Image style={styles.image}
           source={{uri:(image)}}

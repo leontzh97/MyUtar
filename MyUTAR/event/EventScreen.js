@@ -9,10 +9,13 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
-  Alert
+  Alert,
+  Picker
 } from 'react-native';
-import {DatePicker} from './DatePicker';
+import {SearchInput} from './SearchInput';
 
+let config = require('../Config');
+let dt = require('../localData');
 var take;
 
 Date.prototype.formatted = function() {
@@ -29,22 +32,40 @@ Date.prototype.formatted = function() {
   return `${date} ${monthsText[month]} ${year}(${daysText[day]})`;
 }
 
+Date.prototype.year = function() {
+  let year = this.getFullYear();
+  return `${year}`;
+}
+
+Date.prototype.month = function() {
+  let month = this.getMonth();
+  let monthsText = [
+    'Jan','Feb','Mar','Apr','May','Jun',
+    'Jul','Aug','Sep','Oct','Nov','Dec'
+  ];
+  return `${monthsText[month]}`;
+}
+
 export default class EventScreen extends Component<Props> {
 
   constructor(props){
     super(props)
     this.state = {
       viewSource: [],
-      dataSource: [],
       filterData: [],
       type: false,
       pickerDisplay: false,
       department: false,
-      dId: [],
-      eType: [],
       value: '',
-      input: false
-    }
+      input: false,
+      year: '',
+      month: '',
+      uta: false,
+      isRefresh: false,
+    };
+
+    this.load = this.load.bind(this);
+    this.search = this.search.bind(this);
   }
 
   static navigationOptions = ({navigation}) => {
@@ -70,7 +91,7 @@ export default class EventScreen extends Component<Props> {
   }
 
   renderItems = ( { item } ) => {
-    let date = new Date(`${item.date}`);
+    let date = new Date(`${item.startDate}`);
     return(
       <View style={styles.eContainer}>
         <Text style={styles.eventHeader}>
@@ -81,10 +102,9 @@ export default class EventScreen extends Component<Props> {
         onPress={ () => {
                 this.props.navigation.navigate('EvDetails', {
                   dataTitle: `${item.title}`,
-                  dataDate: `${item.date}`,
+                  dataDate: `${item.startDate}`,
                   dataVenue: `${item.venue}`,
                   dataFee: `${item.fee}`,
-                  dataLink: `${item.link}`,
                   dataImage: `${item.image}`,
                   dataTime: `${item.time}`
                 })
@@ -106,16 +126,56 @@ export default class EventScreen extends Component<Props> {
 
   keyExtractor = (item) => {return(item.id.toString())}
 
-  setPicker(value){
-    this.setState({
-      action: value
+  componentDidMount(){
+      this.load();
+  }
+
+  load(){
+    let url = config.settings.serverPath + '/MyUTAR/getEvents.php';
+
+    this.setState({isRefresh: true})
+
+    fetch(url)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
     })
+    .then((responseJSON) => {
+        this.setState({
+          filterData: responseJSON.event,
+          viewSource: responseJSON.event,
+          isRefresh: false
+        })
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
 
-    if(this.DepartmentFilter())
-      this.DepartmentFilter();
+  search(){
+    let url = config.settings.serverPath + '/MyUTAR/searchEvents.php?keyword=' + this.state.value;
+    this.setState({isRefresh: true});
 
-    if(this.togglePicker())
-      this.togglePicker();
+    fetch(url)
+    .then((response) => {
+      if(!response.ok) {
+        Alert.alert('Error', response.status.toString());
+        throw Error('Error ' + response.status);
+      }
+      return response.json()
+    })
+    .then((responseJSON) => {
+      this.setState({
+        viewSource: responseJSON.event,
+        isRefresh: false
+      })
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   searchBar(){
@@ -142,48 +202,77 @@ export default class EventScreen extends Component<Props> {
     })
   }
 
-  componentDidMount(){
-      let url = 'http://192.168.0.117:8081/db.json';
+  utaFilter(){
+    this.setState({
+      uta: !this.state.uta
+    })
+  }
 
-      fetch(url)
-      .then((response) => {
-        if(!response.ok) {
-          Alert.alert('Error', response.status.toString());
-          throw Error('Error ' + response.status);
-        }
-        return response.json()
-      })
-      .then((responseJSON) => {
-          this.setState({
-            dataSource: responseJSON.events,
-            filterData: responseJSON.events,
-            viewSource: responseJSON.events,
-            dId: responseJSON.departmentID,
-            eType: responseJSON.type
-          })
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  filterYear(date){
+    this.setState({
+      viewSource : this.state.filterData.filter(x => new Date(x.endDate).year() === date)
+    })
+  }
+
+  filterMonth(date){
+    this.setState({
+      viewSource : this.state.filterData.filter(x => new Date(x.endDate).month() === date)
+    })
   }
 
   filterDep(term){
     this.setState({
-      filterData: this.state.dataSource,
-      viewSource : this.state.filterData.filter(x => x.department === term)
+      viewSource : this.state.filterData.filter(x => x.dId === term)
     })
   }
 
+  filterUTA(term){
+    const tdy = new Date();
+
+    if(term == 'Upcoming'){
+      this.setState({
+        viewSource : this.state.filterData.filter(x => new Date(x.startDate) > tdy)
+      })
+    }
+    else if(term == 'Today'){
+      this.setState({
+        viewSource : this.state.filterData.filter(x => new Date(x.endDate).formatted() === tdy.formatted())
+      })
+    }
+    else{
+      this.setState({
+        viewSource : this.state.filterData.filter(x => new Date(x.endDate) < tdy)
+      })
+    }
+  }
+
   filterTp(term){
-    this.setState({
-      filterData: this.state.dataSource,
-      viewSource : this.state.filterData.filter(x => x.type === term)
-    })
+    if(term == 'None'){
+      this.setState({
+        viewSource: this.state.filterData
+      })
+    }
+    else if(term == 'Campaign/Festival'){
+      this.setState({
+        viewSource : this.state.filterData.filter(x => x.type == 'Campaign' || x.type == 'Festival')
+      })
+    }
+    else if(term == 'Seminar/Course/Workshop'){
+      this.setState({
+        viewSource : this.state.filterData.filter(x => x.type == 'Seminar' || x.type == 'Course' || x.type == 'Workshop')
+      })
+    }
+    else{
+      this.setState({
+        viewSource : this.state.filterData.filter(x => x.type === term)
+      })
+    }
   }
 
   render() {
     take = this;
-
+    var tdy = new Date();
+    var prev = tdy.setFullYear(tdy.getFullYear() - 1);
     return (
       <View style={styles.container}>
         <Modal
@@ -193,7 +282,6 @@ export default class EventScreen extends Component<Props> {
         onRequestClose={() => this.togglePicker()}>
         <TouchableOpacity style={{backgroundColor:'rgba(25,25,25,0.5)', flex: 1}} onPress={() => this.togglePicker()}/>
         <View style={styles.mod}>
-        <Text style={styles.modTitle}>Filter By</Text>
           <TouchableHighlight
           underlayColor='#cccc'
           style={styles.modCont}
@@ -205,6 +293,12 @@ export default class EventScreen extends Component<Props> {
           style={styles.modCont}
           onPress={() => {this.togglePicker(),this.TypeFilter()}}>
             <Text style={styles.modText}>Type</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+          underlayColor='#cccc'
+          style={styles.modCont}
+          onPress={() => {this.togglePicker(),this.utaFilter()}}>
+            <Text style={styles.modText}>Upcoming/Today/Archive</Text>
           </TouchableHighlight>
         </View>
         </Modal>
@@ -218,13 +312,13 @@ export default class EventScreen extends Component<Props> {
           onPress={() => this.DepartmentFilter()}
         />
         <View style={styles.mod2}>
-          {this.state.dId.map((item) => {return(
+          {dt.departments.map((item) => {return(
             <TouchableHighlight
               underlayColor='#cccc'
               style={styles.modCont2}
-              key={item}
-              onPress={() => this.filterDep(`${item}`)}>
-              <Text style={styles.modText2}>{item}</Text>
+              key={item.dId}
+              onPress={() => {this.filterDep(`${item.dId}`),this.DepartmentFilter()}}>
+              <Text style={styles.modText2}>{item.dId}</Text>
             </TouchableHighlight>
           )})}
           </View>
@@ -239,19 +333,95 @@ export default class EventScreen extends Component<Props> {
             onPress={() => this.TypeFilter()}
           />
           <View style={styles.mod2}>
-            {this.state.eType.map((item) => {return(
+            {dt.types.map((item) => {return(
               <TouchableHighlight
                 underlayColor='#cccc'
                 style={styles.modCont2}
-                key={item}
-                onPress={() => this.filterTp(`${item}`)}>
-                <Text style={styles.modText2}>{item}</Text>
+                key={item.tp}
+                onPress={() => {this.filterTp(`${item.tp}`),this.TypeFilter()}}>
+                <Text style={styles.modText2}>{item.tp}</Text>
               </TouchableHighlight>
             )})}
           </View>
           </Modal>
-        <DatePicker />
+          <Modal
+          visible={this.state.uta}
+          animationType={'fade'}
+          transparent={true}
+          onRequestClose={() => this.utaFilter()}>
+          <TouchableOpacity
+            style={{backgroundColor:'rgba(25,25,25,0.5)', flex: 1}}
+            onPress={() => this.utaFilter()}
+          />
+          <View style={styles.mod2}>
+            {dt.uta.map((item) => {return(
+              <TouchableHighlight
+                underlayColor='#cccc'
+                style={styles.modCont2}
+                key={item.u}
+                onPress={() => {this.filterUTA(`${item.u}`),this.utaFilter()}}>
+                <Text style={styles.modText2}>{item.u}</Text>
+              </TouchableHighlight>
+            )})}
+            </View>
+          </Modal>
+          <Modal
+          visible={this.state.input}
+          animationType={'fade'}
+          transparent={true}
+          onRequestClose={() => this.searchBar()}>
+          <TouchableOpacity
+            style={{backgroundColor:'rgba(0,0,0,0)', flex: 1}}
+            onPress={() => this.searchBar()}
+          />
+          <View style={styles.mod3}>
+            <SearchInput
+              autoFocus={true}
+              style={styles.searchInput}
+              placeholder={'Search here...'}
+              value={this.state.value}
+              onChangeText={(value) => this.setState({value})}
+              onSubmitEditing={this.search}
+              keyboardType={'default'}
+            />
+            </View>
+          </Modal>
+          <View style={styles.pickContainer}>
+          <Picker
+            style={styles.picker}
+            mode={'dropdown'}                     // 'dialog' is default, try 'dropdown'
+            selectedValue={this.state.year}
+            onValueChange={
+                (itemValue, itemIndex) => {this.setState({year: itemValue}), this.filterYear(itemValue)}
+            }>
+            <Picker.Item label="2017" value="2017" />
+            <Picker.Item label="2018" value="2018" />
+            <Picker.Item label="2019" value="2019" />
+          </Picker>
+          <Picker
+            style={styles.picker}
+            mode={'dropdown'}                     // 'dialog' is default, try 'dropdown'
+            selectedValue={this.state.month}
+            onValueChange={
+                (itemValue, itemIndex) => this.setState({month: itemValue}, this.filterMonth(itemValue),console.log(this.state.viewSource))
+            }>
+            <Picker.Item label="Jan" value="Jan" />
+            <Picker.Item label="Feb" value="Feb" />
+            <Picker.Item label="Mar" value="Mar" />
+            <Picker.Item label="Apr" value="Apr" />
+            <Picker.Item label="May" value="May" />
+            <Picker.Item label="Jun" value="Jun" />
+            <Picker.Item label="Jul" value="Jul" />
+            <Picker.Item label="Aug" value="Aug" />
+            <Picker.Item label="Sep" value="Sep" />
+            <Picker.Item label="Oct" value="Oct" />
+            <Picker.Item label="Nov" value="Nov" />
+            <Picker.Item label="Dec" value="Dec" />
+            </Picker>
+          </View>
         <FlatList
+          refreshing={this.state.isRefresh}
+          onRefresh={this.load}
           keyExtractor={this.keyExtractor}
           data={this.state.viewSource}
           renderItem={this.renderItems}
@@ -304,19 +474,19 @@ const styles = StyleSheet.create({
      zIndex: 1,
   },
   modCont:{
-    paddingTop: 5,
-    paddingBottom: 5,
     alignItems: 'center',
+    padding: 5
   },
   modText:{
     color: 'black',
     fontSize: 22,
+    textAlign: 'center'
   },
   mod2: {
      position: 'absolute',
      top: 100,
-     right: 80,
-     width: 200,
+     right: 60,
+     width: 230,
      backgroundColor: 'white',
      borderRadius: 8,
      borderColor: 'rgba(255, 255, 255, 0.4)',
@@ -330,12 +500,21 @@ const styles = StyleSheet.create({
   modText2:{
     color: 'black',
     fontSize: 22,
+    textAlign: 'center'
   },
   modTitle:{
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
     fontSize: 24
+  },
+  mod3: {
+     position: 'absolute',
+     top: 0,
+     right: 0,
+     width: 360,
+     backgroundColor: 'white',
+     zIndex: 1,
   },
   option: {
     height: 35,
@@ -344,11 +523,26 @@ const styles = StyleSheet.create({
   },
   search: {
     height: 35,
-    width: 35,
+    width: 40,
+    margin: 5
+  },
+  searchInput:{
+    height: 46,
+    width: 340,
     margin: 5
   },
   searchBar: {
     width: 100,
     margin: 5
-  }
+  },
+  picker: {
+     margin: 5,
+     height: 30,
+     width: 90,
+     color: 'black',
+  },
+  pickContainer: {
+    margin: 5,
+    flexDirection: 'row'
+  },
 });
