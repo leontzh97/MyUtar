@@ -12,7 +12,7 @@ import {
   Alert,
   Picker
 } from 'react-native';
-import {SearchInput} from './SearchInput';
+import {SearchInput} from '../UI/UI';
 
 let config = require('../Config');
 let dt = require('../localData');

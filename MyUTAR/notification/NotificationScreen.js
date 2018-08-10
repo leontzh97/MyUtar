@@ -11,7 +11,7 @@ import {
   Modal,
   Alert
 } from 'react-native';
-import {SearchInput,PickerWithLabel} from './SearchInput';
+import {SearchInput,PickerWithLabel} from '../UI/UI';
 
 let dt = require('../localData');
 let config = require('../Config');
@@ -59,7 +59,7 @@ export default class NotificationScreen extends Component<Props> {
 
   renderItems = ( { item } ) => {
     return(
-      <ScrollView style={styles.nContainer}>
+      <View style={styles.nContainer}>
         <TouchableHighlight
         underlayColor={'#cccc'}
         onPress={ () => {
@@ -70,13 +70,13 @@ export default class NotificationScreen extends Component<Props> {
               }}
         >
         <View>
-        <Text style={styles.notTitle}>
+        <Text numberOfLines={2} style={styles.notTitle}>
           {item.title}
         </Text>
         </View>
         </TouchableHighlight>
-      </ScrollView>
-    );
+      </View>
+    )
   }
 
   keyExtractor = (item) => {return(item.id.toString())}
@@ -145,10 +145,18 @@ export default class NotificationScreen extends Component<Props> {
     })
   }
 
-  sorted(){
-    this.setState({
-      viewSource: this.state.viewSource.sort((a,b) => a.title < b.title ? -1 : 1)
-    })
+  sorted(term){
+    if(term == 'asc'){
+      this.setState({
+        viewSource: this.state.viewSource.sort((a,b) => a.title < b.title ? -1 : 1)
+      })
+    }
+    else {
+      this.setState({
+        viewSource: this.state.viewSource.sort((a,b) => a.title > b.title ? -1 : 1)
+      })
+    }
+    //console.log(this.state.viewSource.sort((a,b) => a.title < b.title ? -1 : 1))
   }
 
   filtered(term){
@@ -179,13 +187,13 @@ export default class NotificationScreen extends Component<Props> {
           <TouchableHighlight
           underlayColor='#cccc'
           style={styles.modCont}
-          onPress={() => {this.togglePicker(),this.sorted()}}>
+          onPress={() => {this.togglePicker(),this.sorted('asc')}}>
             <Text style={styles.modText}>Ascending Order</Text>
           </TouchableHighlight>
           <TouchableHighlight
           underlayColor='#cccc'
           style={styles.modCont}
-          onPress={() => {this.togglePicker(),this.sorted()}}>
+          onPress={() => {this.togglePicker(),this.sorted('desc')}}>
             <Text style={styles.modText}>Descending Order</Text>
           </TouchableHighlight>
         </View>
@@ -225,6 +233,7 @@ export default class NotificationScreen extends Component<Props> {
         <FlatList
           refreshing={this.state.isRefresh}
           onRefresh={this._load}
+          extraData={this.state}
           keyExtractor={this.keyExtractor}
           data={this.state.viewSource}
           renderItem={this.renderItems}
@@ -259,6 +268,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 5,
     margin: 10,
+    height: 65,
+    justifyContent: 'center',
     borderTopWidth: 2,
     borderTopColor: 'black',
   },
@@ -266,7 +277,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'left',
     color: 'black',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   mod: {
      position: 'absolute',
