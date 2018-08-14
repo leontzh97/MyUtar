@@ -422,6 +422,7 @@ export default class EventScreen extends Component<Props> {
         <FlatList
           refreshing={this.state.isRefresh}
           onRefresh={this.load}
+          extraData={this.state}
           keyExtractor={this.keyExtractor}
           data={this.state.viewSource}
           renderItem={this.renderItems}

@@ -13,6 +13,16 @@ export default class LoginScreen extends Component<Props>{
   static navigationOptions = {
     title: 'Login',
   };
+
+  constructor(){
+    super();
+
+    this.state = {
+      id: '',
+      password: ''
+    }
+  }
+
   render() {
     return (
     <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
@@ -27,11 +37,12 @@ export default class LoginScreen extends Component<Props>{
       </View>
       <View style={styles.formContainer}>
       <TextInput
-        placeholder='Enter your UTAR Mail....'
+        placeholder='Enter your UTAR ID....'
         placeholderTextColor='rgba(0,0,0,0.3)'
-        keyboardType='email-address'
+        keyboardType='numeric'
         autoCaptalize= 'none'
         autoCorrect= {false}
+        onValueChange= {(value) => this.setState({id: value})}
         enablesReturnKeyAutomatically={true}
         returnKeyType= 'next'
         style={styles.input}
@@ -42,6 +53,7 @@ export default class LoginScreen extends Component<Props>{
         secureTextEntry= {true}
         autoCaptalize= 'none'
         autoCorrect= {false}
+        onValueChange= {(value) => this.setState({password: value})}
         enablesReturnKeyAutomatically= {true}
         returnKeyType= 'go'
         style={styles.input}
